@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin RH - SCSM SARL</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+    
+    <div id="accessDenied" style="display: none;">
+        <div class="login-container">
+            <div class="login-card">
+                <h2><i class="fas fa-lock"></i> Accès RH</h2>
+                <p>Veuillez vous identifier pour accéder aux candidatures.</p>
+                <a href="login.html" class="cta-button">Se connecter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-protected">
+        <header class="admin-header">
+            <div class="logo">
+                <i class="fas fa-user-shield"></i> SCSM RH
+            </div>
+            <div class="admin-user">
+                <span>Administrateur</span>
+                <button onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Candidatures</h3>
+                    <p id="totalCandidatures">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Nouvelles</h3>
+                    <p id="newCandidatures" class="text-success">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Villes couvertes</h3>
+                    <p id="citiesCount">0</p>
+                </div>
+            </div>
+
+            <div class="admin-panel">
+                <div class="panel-header">
+                    <h2>Gestion des Candidatures</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchCandidate" placeholder="Rechercher un candidat...">
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Candidat</th>
+                                <th>Ville</th>
+                                <th>Compétences</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidaturesTable">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="candidateModal" class="modal hidden">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h2 id="modalName">Détails</h2>
+                <button onclick="closeCandidateModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                </div>
+            <div class="modal-footer">
+                <button onclick="updateStatus('Rejeté')" class="btn-danger">Rejeter</button>
+                <button onclick="updateStatus('En revue')" class="btn-warning">Mettre en revue</button>
+                <button onclick="updateStatus('Entretien')" class="btn-success">Convoquer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion RH</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background: linear-gradient(135deg, #2c3e50, #3498db); display:flex; align-items:center; justify-content:center; height:100vh;">
+    
+    <div class="login-card" style="background:white; padding:40px; border-radius:10px; width:100%; max-width:400px; text-align:center;">
+        <h2><i class="fas fa-lock"></i> Accès Admin</h2>
+        <p style="margin-bottom:20px; color:#666;">Entrez le code d'accès sécurisé</p>
+        
+        <input type="password" id="adminCode" placeholder="Code administrateur" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:5px;">
+        
+        <button onclick="handleLogin()" class="submit-btn" style="background:#3498db;">Se connecter</button>
+        <p style="margin-top:15px;"><a href="index.html" style="color:#666; font-size:0.9rem;">Retour au site</a></p>
+    </div>
+
+    <script>
+        function handleLogin() {
+            const code = document.getElementById('adminCode').value;
+            // Code du fichier exemple
+            if (code === "13245@10001a") {
+                sessionStorage.setItem('admin_logged', 'true');
+                window.location.href = 'admin.html';
+            } else {
+                alert("Code incorrect !");
+            }
+        }
+    </script>
+</body>
+</html>

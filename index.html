@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidature - SCSM SARL</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1><i class="fas fa-briefcase"></i> SCSM SARL</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#accueil">Accueil</a></li>
+                    <li><a href="#formulaire">Postuler</a></li>
+                    <li><a href="login.html" class="admin-btn">Espace Admin</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section id="accueil" class="hero">
+        <div class="hero-content">
+            <h1>Rejoignez l'équipe SCSM SARL</h1>
+            <p>Excellence, Innovation & Impact. Déposez votre candidature spontanée ou répondez à nos offres.</p>
+            <a href="#formulaire" class="cta-button">Déposer ma candidature</a>
+        </div>
+    </section>
+
+    <section id="formulaire" class="order-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2>Formulaire de Candidature</h2>
+                <p>Remplissez soigneusement les champs ci-dessous. Date limite : <strong>31 Décembre 2025</strong></p>
+            </div>
+            
+            <div class="order-form-container">
+                <form id="candidatureForm" class="order-form" name="scsm-candidature" method="POST" data-netlify="true">
+                    
+                    <h3 class="form-section-title"><i class="fas fa-user"></i> Informations Personnelles</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nom_complet">Nom complet *</label>
+                            <input type="text" id="nom_complet" name="nom_complet" required placeholder="Votre nom et prénom">
+                        </div>
+                        <div class="form-group">
+                            <label for="ville">Ville de résidence *</label>
+                            <select id="ville" name="ville" required>
+                                <option value="">Sélectionnez...</option>
+                                <option value="Bertoua">Bertoua</option>
+                                <option value="Yaoundé">Yaoundé</option>
+                                <option value="Douala">Douala</option>
+                                <option value="Bafoussam">Bafoussam</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="exemple@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="telephone">Téléphone *</label>
+                            <input type="tel" id="telephone" name="telephone" required placeholder="+237...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="portfolio_lien">Lien Portfolio (Optionnel)</label>
+                        <input type="url" id="portfolio_lien" name="portfolio_lien" placeholder="https://mon-portfolio.com">
+                    </div>
+
+                    <h3 class="form-section-title"><i class="fas fa-pen-nib"></i> Contenu</h3>
+
+                    <div class="form-group">
+                        <label for="motivation">Lettre de motivation (Texte) *</label>
+                        <textarea id="motivation" name="motivation" rows="6" required placeholder="Expliquez votre intérêt pour SCSM SARL..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="competences">Compétences Marketing / Techniques *</label>
+                        <textarea id="competences" name="competences" rows="4" required placeholder="- Gestion réseaux sociaux&#10;- Analyse de données&#10;- Python/R..."></textarea>
+                    </div>
+
+                    <h3 class="form-section-title"><i class="fas fa-paperclip"></i> Documents</h3>
+                    <div class="alert-info">
+                        <i class="fas fa-info-circle"></i> Formats acceptés : PDF, DOCX (Max 5Mo)
+                    </div>
+
+                    <div class="form-group upload-group">
+                        <label>CV (Curriculum Vitae) *</label>
+                        <div class="upload-area" id="cv-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span id="cv-filename">Cliquez pour ajouter votre CV</span>
+                            <input type="file" id="cv_file" name="cv" accept=".pdf,.doc,.docx" required style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="form-group upload-group">
+                        <label>Lettre de motivation (Fichier optionnel)</label>
+                        <div class="upload-area" id="lm-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span id="lm-filename">Cliquez pour ajouter le fichier</span>
+                            <input type="file" id="lm_file" name="lettre_motivation" accept=".pdf,.doc,.docx" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="consent" required>
+                        <label for="consent">Je certifie l'exactitude des informations fournies.</label>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Envoyer ma candidature
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div id="confirmationModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Candidature Envoyée !</h2>
+            <p>Merci <span id="confName"></span>, votre dossier a été transmis aux RH de SCSM SARL.</p>
+            <p class="ref-code">Réf : <span id="confRef"></span></p>
+            <button onclick="closeModal()" class="cta-button">Fermer</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SCSM SARL. Plateforme RH.</p>
+            <p>Power by SCS MauBmar</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
