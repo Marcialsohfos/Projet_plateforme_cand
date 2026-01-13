@@ -54,20 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form);
 
-            // ENVOI VERS NETLIFY VIA FETCH
-            fetch("/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(formData).toString()
-            })
-            // NOTE IMPORTANTE : Pour l'envoi de fichiers, Netlify gère parfois mieux le FormData brut
-            // Si l'envoi de fichier échoue avec le code ci-dessus, remplacez le bloc fetch par :
-            /*
+            // --- CORRECTION MAJEURE ICI ---
+            // Envoi direct du FormData pour supporter les fichiers
             fetch("/", {
                 method: "POST",
                 body: formData
             })
-            */
             .then(() => {
                 // --- SUCCÈS NETLIFY ---
                 
@@ -75,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ref = 'CAND-' + Math.floor(Math.random() * 10000);
                 
                 // 2. Sauvegarde Locale (Pour votre démo Admin locale)
-                // Note : Les fichiers ne sont pas stockés en local, juste les infos texte
                 const newCandidature = {
                     id: ref,
                     date: new Date().toLocaleDateString(),
@@ -93,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('confName').textContent = newCandidature.nom;
                 document.getElementById('confRef').textContent = ref;
                 document.getElementById('confirmationModal').classList.remove('hidden');
+                document.getElementById('confirmationModal').style.display = 'flex'; // Force display flex for centering
                 
                 // 4. Reset du formulaire
                 form.reset();
@@ -104,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch((error) => {
                 alert("Erreur lors de l'envoi : " + error);
+                console.error(error);
             })
             .finally(() => {
                 submitBtn.innerHTML = originalBtnText;
@@ -120,7 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function closeModal() {
-    document.getElementById('confirmationModal').classList.add('hidden');
+    const modal = document.getElementById('confirmationModal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
 }
 
 // --- LOGIQUE ADMIN ---
@@ -166,7 +161,7 @@ function loadDashboard() {
             <td><span class="badge ${c.statut}">${c.statut}</span></td>
             <td>
                 <button class="admin-btn" onclick="openCandidateModal('${c.id}')"><i class="fas fa-eye"></i></button>
-                </td>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -204,26 +199,30 @@ function openCandidateModal(id) {
                 <p><strong>Statut:</strong> <span class="badge ${candidate.statut}">${candidate.statut}</span></p>
             </div>
         </div>
-        <div class="alert-info" style="margin-bottom:15px; font-size:0.9em;">
+        <div class="alert-info" style="margin-bottom:15px; font-size:0.9em; background:#e3f2fd; padding:10px; border-radius:5px; border-left:4px solid #2196f3;">
             <i class="fas fa-info-circle"></i> Pour voir les pièces jointes (CV, Lettre), connectez-vous à votre compte Netlify > Onglet "Forms".
         </div>
         <hr>
         <div style="margin-top:15px;">
             <h4>Lettre de motivation</h4>
-            <p style="background:#f9f9f9; padding:10px; border-radius:5px;">${candidate.motivation}</p>
+            <p style="background:#f9f9f9; padding:10px; border-radius:5px; white-space: pre-wrap;">${candidate.motivation}</p>
         </div>
         <div style="margin-top:15px;">
             <h4>Compétences</h4>
-            <p>${candidate.competences}</p>
+            <p style="white-space: pre-wrap;">${candidate.competences}</p>
         </div>
     `;
     
     modalEl.classList.remove('hidden');
+    modalEl.style.display = 'flex';
 }
 
 function closeCandidateModal() {
     const modalEl = document.getElementById('candidateModal');
-    if(modalEl) modalEl.classList.add('hidden');
+    if(modalEl) {
+        modalEl.classList.add('hidden');
+        modalEl.style.display = 'none';
+    }
 }
 
 function updateStatus(newStatus) {
