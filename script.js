@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const APP_KEY = "scsm_candidatures";
-const ADMIN_CODE = "13245@10001a"; // Le code de votre fichier exemple
+const ADMIN_CODE = "13245@10001a"; 
 
 // --- UTILITAIRES ---
 function getCandidatures() {
@@ -40,46 +40,74 @@ document.addEventListener('DOMContentLoaded', () => {
     setupUpload('cv-area', 'cv_file', 'cv-filename');
     setupUpload('lm-area', 'lm_file', 'lm-filename');
 
-    // 2. Soumission du formulaire
+    // 2. Soumission du formulaire (CORRIGÉ POUR NETLIFY)
     const form = document.getElementById('candidatureForm');
+    
     if (form) {
         form.addEventListener('submit', (e) => {
-            // NOTE : Sur Netlify, le formulaire est envoyé automatiquement grâce à data-netlify="true"
-            // Ici, nous interceptons aussi pour la DEMO locale (localStorage)
+            e.preventDefault(); // On empêche le rechargement de page
             
-            // Pour la démo locale, on empêche le rechargement pour voir la modal
-            // En prod réelle Netlify, on laisserait le submit faire son travail ou on utiliserait fetch.
-            e.preventDefault(); 
+            const submitBtn = form.querySelector('.submit-btn');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+            submitBtn.disabled = true;
 
             const formData = new FormData(form);
-            const ref = 'CAND-' + Math.floor(Math.random() * 10000);
-            
-            // Création de l'objet pour localStorage (Simulation Backend)
-            const newCandidature = {
-                id: ref,
-                date: new Date().toLocaleDateString(),
-                nom: formData.get('nom_complet'),
-                email: formData.get('email'),
-                ville: formData.get('ville'),
-                competences: formData.get('competences'),
-                motivation: formData.get('motivation'),
-                portfolio: formData.get('portfolio_lien'),
-                statut: 'Nouvelle'
-            };
 
-            saveCandidatureData(newCandidature);
+            // ENVOI VERS NETLIFY VIA FETCH
+            fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString()
+            })
+            // NOTE IMPORTANTE : Pour l'envoi de fichiers, Netlify gère parfois mieux le FormData brut
+            // Si l'envoi de fichier échoue avec le code ci-dessus, remplacez le bloc fetch par :
+            /*
+            fetch("/", {
+                method: "POST",
+                body: formData
+            })
+            */
+            .then(() => {
+                // --- SUCCÈS NETLIFY ---
+                
+                // 1. Générer une référence
+                const ref = 'CAND-' + Math.floor(Math.random() * 10000);
+                
+                // 2. Sauvegarde Locale (Pour votre démo Admin locale)
+                // Note : Les fichiers ne sont pas stockés en local, juste les infos texte
+                const newCandidature = {
+                    id: ref,
+                    date: new Date().toLocaleDateString(),
+                    nom: formData.get('nom_complet'),
+                    email: formData.get('email'),
+                    ville: formData.get('ville'),
+                    competences: formData.get('competences'),
+                    motivation: formData.get('motivation'),
+                    portfolio: formData.get('portfolio_lien'),
+                    statut: 'Nouvelle'
+                };
+                saveCandidatureData(newCandidature);
 
-            // Affichage Modal Succès
-            document.getElementById('confName').textContent = newCandidature.nom;
-            document.getElementById('confRef').textContent = ref;
-            document.getElementById('confirmationModal').classList.remove('hidden');
-            form.reset();
-            
-            // Reset visuel uploads
-            document.querySelectorAll('.upload-area').forEach(el => {
-                el.classList.remove('uploaded');
-                el.querySelector('span').textContent = "Cliquez pour ajouter";
-                el.querySelector('i').className = "fas fa-cloud-upload-alt";
+                // 3. Afficher le Modal
+                document.getElementById('confName').textContent = newCandidature.nom;
+                document.getElementById('confRef').textContent = ref;
+                document.getElementById('confirmationModal').classList.remove('hidden');
+                
+                // 4. Reset du formulaire
+                form.reset();
+                document.querySelectorAll('.upload-area').forEach(el => {
+                    el.classList.remove('uploaded');
+                    el.querySelector('span').textContent = "Cliquez pour ajouter";
+                    el.querySelector('i').className = "fas fa-cloud-upload-alt";
+                });
+            })
+            .catch((error) => {
+                alert("Erreur lors de l'envoi : " + error);
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
             });
         });
     }
@@ -98,7 +126,6 @@ function closeModal() {
 // --- LOGIQUE ADMIN ---
 
 function checkAuth() {
-    // Vérification basique session (localStorage)
     const isLogged = sessionStorage.getItem('admin_logged');
     if (!isLogged) {
         window.location.href = 'login.html';
@@ -114,9 +141,14 @@ function loadDashboard() {
     const list = getCandidatures();
     
     // Stats
-    document.getElementById('totalCandidatures').textContent = list.length;
-    const nouvelles = list.filter(c => c.statut === 'Nouvelle').length;
-    document.getElementById('newCandidatures').textContent = nouvelles;
+    const totalEl = document.getElementById('totalCandidatures');
+    if(totalEl) totalEl.textContent = list.length;
+    
+    const newEl = document.getElementById('newCandidatures');
+    if(newEl) {
+        const nouvelles = list.filter(c => c.statut === 'Nouvelle').length;
+        newEl.textContent = nouvelles;
+    }
     
     // Table
     const tbody = document.getElementById('candidaturesTable');
@@ -124,18 +156,17 @@ function loadDashboard() {
     
     tbody.innerHTML = '';
     
-    // Trier par plus récent
-    list.reverse().forEach((c, index) => {
+    list.reverse().forEach((c) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${c.date}</td>
             <td><strong>${c.nom}</strong><br><small>${c.email}</small></td>
             <td>${c.ville}</td>
-            <td>${c.competences.substring(0, 30)}...</td>
+            <td>${c.competences ? c.competences.substring(0, 30) : ''}...</td>
             <td><span class="badge ${c.statut}">${c.statut}</span></td>
             <td>
                 <button class="admin-btn" onclick="openCandidateModal('${c.id}')"><i class="fas fa-eye"></i></button>
-            </td>
+                </td>
         `;
         tbody.appendChild(tr);
     });
@@ -150,10 +181,17 @@ function openCandidateModal(id) {
     if (!candidate) return;
 
     currentCandidateId = id;
-    document.getElementById('modalName').textContent = candidate.nom;
     
-    const body = document.getElementById('modalBody');
-    body.innerHTML = `
+    // Sécurisation des éléments DOM
+    const nameEl = document.getElementById('modalName');
+    const bodyEl = document.getElementById('modalBody');
+    const modalEl = document.getElementById('candidateModal');
+    
+    if(!nameEl || !bodyEl || !modalEl) return;
+
+    nameEl.textContent = candidate.nom;
+    
+    bodyEl.innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
             <div>
                 <p><strong>Email:</strong> ${candidate.email}</p>
@@ -166,6 +204,9 @@ function openCandidateModal(id) {
                 <p><strong>Statut:</strong> <span class="badge ${candidate.statut}">${candidate.statut}</span></p>
             </div>
         </div>
+        <div class="alert-info" style="margin-bottom:15px; font-size:0.9em;">
+            <i class="fas fa-info-circle"></i> Pour voir les pièces jointes (CV, Lettre), connectez-vous à votre compte Netlify > Onglet "Forms".
+        </div>
         <hr>
         <div style="margin-top:15px;">
             <h4>Lettre de motivation</h4>
@@ -177,11 +218,12 @@ function openCandidateModal(id) {
         </div>
     `;
     
-    document.getElementById('candidateModal').classList.remove('hidden');
+    modalEl.classList.remove('hidden');
 }
 
 function closeCandidateModal() {
-    document.getElementById('candidateModal').classList.add('hidden');
+    const modalEl = document.getElementById('candidateModal');
+    if(modalEl) modalEl.classList.add('hidden');
 }
 
 function updateStatus(newStatus) {
@@ -194,7 +236,7 @@ function updateStatus(newStatus) {
         list[index].statut = newStatus;
         localStorage.setItem(APP_KEY, JSON.stringify(list));
         closeCandidateModal();
-        loadDashboard(); // Rafraîchir la table
+        loadDashboard(); 
         alert(`Statut mis à jour : ${newStatus}`);
     }
 }
